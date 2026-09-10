@@ -1,0 +1,7 @@
+streamlit
+ifcopenshell
+openpyxl
+langchain
+langchain-openai
+langchain-core
+pydantic
