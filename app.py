@@ -18,9 +18,10 @@ try:
 except Exception:
     pass
 
-# 2. Jeśli nadal nie ma klucza, a uruchamiasz lokalnie, możesz go wpisać bezpośrednio tutaj:
+# 2. Jeśli nadal nie ma klucza, a uruchamiasz lokalnie, wpisz go tutaj (ale pamiętaj, by go usunąć przed pushem na GitHub!):
 if "OPENAI_API_KEY" not in os.environ or not os.environ["OPENAI_API_KEY"]:
-    os.environ["OPENAI_API_KEY"] = "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"
+    # Wklej tu swój nowy klucz tylko do testów lokalnych:
+    os.environ["OPENAI_API_KEY"] = ""
 
 @tool
 def generuj_zestawienie_slupow(file_path: str) -> str:
@@ -68,6 +69,11 @@ def generuj_zestawienie_slupow(file_path: str) -> str:
                         nazwa_bazowa = ":".join(czesc[:-1]).strip()
                     else:
                         nazwa_bazowa = nazwa_surowa
+                
+                # === POPRAWKA: IGNOROWANIE PRZYROSTKÓW "MY", "MY 2" itp. ===
+                # Wyłapuje i usuwa końcówki z wielkimi literami MY oraz ewentualnymi cyframi
+                nazwa_bazowa = re.sub(r'\s*MY\s*\d*', '', nazwa_bazowa).strip()
+                # ============================================================
                 
                 try:
                     shape = ifcopenshell.geom.create_shape(settings, col)
@@ -197,6 +203,7 @@ if prompt := st.chat_input("Zadaj pytanie..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
+        # Ważne, by model miał do dyspozycji Twój klucz API (zapewniony u góry skryptu)
         llm = ChatOpenAI(model="gpt-4o", temperature=0)
         llm_z_narzedziami = llm.bind_tools([generuj_zestawienie_slupow])
         
